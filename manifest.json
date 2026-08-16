@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "sendblue.events",
+  "name": "Sendblue Events",
+  "version": "0.1.0",
+  "author": "Sendblue",
+  "license": "MIT",
+  "description": "Live Sendblue messages, verification activity, and line health in the Omarchy bar.",
+  "kinds": ["bar-widget"],
+  "activation": "on-demand",
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Sendblue",
+    "description": "Unread messages, account events, and line health with an activity popup.",
+    "category": "Communication",
+    "aliases": ["imessage", "messages", "sendblue"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "cliPath": "sendblue",
+      "notifications": "On",
+      "maxActivity": 30
+    },
+    "schema": [
+      {
+        "key": "cliPath",
+        "type": "string",
+        "label": "Sendblue CLI executable",
+        "defaultValue": "sendblue"
+      },
+      {
+        "key": "notifications",
+        "type": "enum",
+        "label": "Desktop notifications",
+        "options": ["On", "Off"],
+        "defaultValue": "On"
+      },
+      {
+        "key": "maxActivity",
+        "type": "integer",
+        "label": "Activity rows",
+        "min": 5,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 30
+      }
+    ]
+  }
+}
