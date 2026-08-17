@@ -2,7 +2,7 @@
 
 A native Omarchy bar widget for live Sendblue account activity. It wraps the official `sendblue events` CLI command, so credentials stay in the CLI's existing `~/.sendblue/credentials.json`; the plugin never stores API keys.
 
-> Release candidate: the Grayrunner event/recovery API is deployed and `sendblue@3.11.0` is published. Use the matching `@sendblue/cli` 0.10 release candidate until that CLI version is published. Merely cloning this repository does not start anything.
+The complete runtime path is published: the Grayrunner event/recovery API is deployed, `sendblue@3.11.0` is available on npm, and `@sendblue/cli@0.10.0` is the npm `latest` release. Merely cloning this repository does not start anything.
 
 The widget shows unread inbound activity and current line health. Its bounded, scrollable popup keeps recent account activity usable even with many lines. New inbound messages can trigger desktop notifications. Right-click opens `sendblue messages`; middle-click restarts the stream.
 
@@ -36,7 +36,7 @@ The SSE connection is live delivery, not a permanent log. The CLI reconnects aut
 
 Recovered inbound messages increase the unread count but do not generate a stale desktop notification. Immediate line removals disappear from the popup; grace-period lines remain until the recovery snapshot no longer includes them.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete event catalog, security boundary, recovery model, and cross-repository draft map.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete event catalog, security boundary, recovery model, and cross-repository release map.
 
 ## Development
 

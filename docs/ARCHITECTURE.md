@@ -64,11 +64,11 @@ Recovered inbound messages may increase unread state, but the plugin only sends 
 
 - `sb-api-v2`: PR #1742 merged and deployed as `80a2eb82`; producers, Redis/SSE transport, recovery routes, OpenAPI, and tests.
 - `sendblue-ts`: generated SDK `sendblue@3.11.0` published with `client.events.stream()`.
-- `sendblue-cli`, branch `draft/omarchy-realtime-events-20260816`: 0.10 release candidate; SDK-backed JSONL command, credential-isolated cursors, reconnect, recovery, and dedupe.
-- `omarchy-sendblue-plugin`, this repository: bar widget and pure-JavaScript model release candidate.
+- `sendblue-cli`: PR #14 merged as `0aa27a33`; `@sendblue/cli@0.10.0` is published on npm with the SDK-backed JSONL command, credential-isolated cursors, reconnect, recovery, and dedupe.
+- `omarchy-sendblue-plugin`, this repository: version `0.1.0` bar widget and pure-JavaScript model.
 
 ## Release boundary
 
-Nothing in this repository deploys or enables the backend, CLI, SDK, or plugin. Publish and install the widget only after the matching CLI 0.10 release completes normal review and npm publication.
+The backend is deployed and the SDK and CLI releases are published. This repository still does not deploy those dependencies or enable itself: installing and enabling the widget are explicit user actions.
 
 Exact offline replay would require a retained event log or transactional outbox spanning multiple domains. That is a separate platform decision; this plugin instead converges current durable state through bounded recovery APIs.
