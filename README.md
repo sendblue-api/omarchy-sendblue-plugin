@@ -2,14 +2,14 @@
 
 A native Omarchy bar widget for live Sendblue account activity. It wraps the official `sendblue events` CLI command, so credentials stay in the CLI's existing `~/.sendblue/credentials.json`; the plugin never stores API keys.
 
-> Local draft: do not enable this checkout against the production CLI until the matching Grayrunner event and recovery endpoints have been reviewed and deployed. Merely cloning this repository does not start anything.
+> Release candidate: the Grayrunner event/recovery API is deployed and `sendblue@3.11.0` is published. Use the matching `@sendblue/cli` 0.10 release candidate until that CLI version is published. Merely cloning this repository does not start anything.
 
 The widget shows unread inbound activity and current line health. Its bounded, scrollable popup keeps recent account activity usable even with many lines. New inbound messages can trigger desktop notifications. Right-click opens `sendblue messages`; middle-click restarts the stream.
 
 ## Requirements
 
 - Omarchy 4 plugin-capable shell
-- Sendblue CLI with the `events` command
+- Sendblue CLI 0.10.0 or newer with the `events` command
 - A Sendblue API deployment containing `GET /api/v2/events` and the recovery endpoints
 
 ## Install from a checkout
@@ -20,11 +20,15 @@ omarchy-shell shell rescanPlugins
 omarchy plugin enable sendblue.events right
 ```
 
-For a published Git repository, use `omarchy plugin add <git-url> --enable`.
+For the published repository, use:
 
-The CLI honors `SENDBLUE_API_BASE`, so local Grayrunner testing can point at a development server without changing the plugin. The plugin is intentionally safe when the endpoint is unavailable: it displays the disconnect reason and retries.
+```bash
+omarchy plugin add https://github.com/sendblue-api/omarchy-sendblue-plugin --enable
+```
 
-For a local integration test, launch Omarchy Shell from a terminal that exports `SENDBLUE_API_BASE` to an isolated Grayrunner development server. Do not use production credentials or a production base URL while exercising an undeployed draft contract.
+The CLI honors `SENDBLUE_API_BASE`, so local Grayrunner testing can point at a development server without changing the plugin. The plugin is intentionally safe when the endpoint is unavailable: it displays the disconnect reason and retries. Partial recovery failures remain connected but surface a visible recovery warning instead of silently presenting stale state.
+
+For a local integration test, launch Omarchy Shell from a terminal that exports `SENDBLUE_API_BASE` to an isolated Grayrunner development server.
 
 ## Event guarantees
 

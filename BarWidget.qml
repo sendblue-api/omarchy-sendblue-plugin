@@ -15,6 +15,7 @@ BarWidget {
   property bool streamStarted: false
   property int unreadCount: 0
   property string lastError: ""
+  property string recoveryWarning: ""
   property string lastEventAt: ""
   property var activity: []
   property var lines: ({})
@@ -59,12 +60,19 @@ BarWidget {
       connected = true
       streamStarted = true
       lastError = ""
+      recoveryWarning = ""
       return
     }
     if (event.type === "stream.disconnected") {
       connected = false
       streamStarted = true
       lastError = String(event.data && event.data.error || "Disconnected")
+      return
+    }
+    if (event.type === "recovery.warning") {
+      connected = true
+      streamStarted = true
+      recoveryWarning = String(event.data && event.data.error || "Recovery is incomplete")
       return
     }
     if (event.type === "lines.snapshot") {
@@ -130,7 +138,9 @@ BarWidget {
     bar: root.bar
     tooltipText: root.hasLineProblem
       ? "Sendblue line needs attention"
-      : (root.connected ? (root.unreadCount ? root.unreadCount + " unread Sendblue message(s)" : "Sendblue connected") : (root.lastError || "Sendblue disconnected"))
+      : (root.connected
+          ? (root.recoveryWarning || (root.unreadCount ? root.unreadCount + " unread Sendblue message(s)" : "Sendblue connected"))
+          : (root.lastError || "Sendblue disconnected"))
     iconComponent: Component {
       Row {
         id: statusRow
@@ -155,7 +165,8 @@ BarWidget {
       }
     }
     onPressed: function(code) {
-      if (code === Qt.RightButton && root.bar) root.bar.run("uwsm-app -- xdg-terminal-exec sendblue messages")
+      if (code === Qt.RightButton && root.bar)
+        root.bar.run("uwsm-app -- xdg-terminal-exec " + Util.shellQuote(root.cliPath) + " messages")
       else if (code === Qt.MiddleButton) root.restart()
       else root.toggle()
     }
@@ -209,8 +220,10 @@ BarWidget {
               font.bold: true
             }
             Text {
-              text: root.connected ? "Live event stream connected" : (root.lastError || "Connecting…")
-              color: root.connected ? root.dim : root.urgent
+              text: root.connected
+                ? (root.recoveryWarning ? "Connected · recovery warning: " + root.recoveryWarning : "Live event stream connected")
+                : (root.lastError || "Connecting…")
+              color: root.connected && !root.recoveryWarning ? root.dim : root.urgent
               font.family: root.bar ? root.bar.fontFamily : Style.font.family
               font.pixelSize: Style.font.bodySmall
               elide: Text.ElideRight

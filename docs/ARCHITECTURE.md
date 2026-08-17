@@ -1,6 +1,6 @@
 # Sendblue Events Architecture
 
-This plugin is the presentation layer of a local, undeployed Sendblue real-time-events draft. It deliberately wraps the Sendblue CLI instead of handling API credentials in QML.
+This plugin is the presentation layer of Sendblue's real-time-events path. It deliberately wraps the Sendblue CLI instead of handling API credentials in QML.
 
 ## Data flow
 
@@ -8,6 +8,7 @@ This plugin is the presentation layer of a local, undeployed Sendblue real-time-
 authoritative Sendblue domain commit
   -> best-effort account-scoped Redis pub/sub
   -> authenticated GET /api/v2/events (SSE)
+  -> sendblue@3.11 client.events.stream()
   -> sendblue events --jsonl --include-control
   -> Omarchy bar widget, activity popup, and live notifications
 ```
@@ -47,7 +48,7 @@ Every public event has a version-one envelope:
 
 Redis pub/sub provides low-latency cross-instance fanout; it is not retained history. The server sends heartbeats, bounds active connections, closes slow clients, fails closed if its Redis subscription is unhealthy, and rotates every stream after 15 minutes to force reauthentication.
 
-The CLI connects to SSE first, performs recovery while live frames buffer in the response, and then consumes/deduplicates the overlap. It stores a bounded per-account cursor in a mode-`0600` file under `~/.sendblue/`. Line recovery also emits a CLI-only `lines.snapshot` control record; the widget atomically replaces its line map from that complete array instead of treating a snapshot as deduplicated live transitions.
+The CLI connects through the official SDK's generated SSE resource first, performs recovery while live frames buffer in the response, and then consumes/deduplicates the overlap. It stores a bounded per-credential cursor in a mode-`0600` file under `~/.sendblue/`. Line recovery also emits a CLI-only `lines.snapshot` control record; the widget atomically replaces its line map from that complete array instead of treating a snapshot as deduplicated live transitions. A `recovery.warning` control record keeps the live connection usable while visibly reporting a partially failed recovery source.
 
 Recovery is domain-specific:
 
@@ -61,13 +62,13 @@ Recovered inbound messages may increase unread state, but the plugin only sends 
 
 ## Repository map
 
-- `sb-api-v2`, branch `draft/omarchy-realtime-events-20260816`: producers, Redis/SSE transport, recovery routes, OpenAPI, and tests.
-- `sendblue-cli`, same draft branch: JSONL command, cursors, reconnect, recovery, and dedupe.
-- `sendblue-ts`, same draft branch: generated-style SDK validation draft; regenerate from accepted OpenAPI before publication.
-- `omarchy-sendblue-plugin`, this repository: bar widget and pure-JavaScript model.
+- `sb-api-v2`: PR #1742 merged and deployed as `80a2eb82`; producers, Redis/SSE transport, recovery routes, OpenAPI, and tests.
+- `sendblue-ts`: generated SDK `sendblue@3.11.0` published with `client.events.stream()`.
+- `sendblue-cli`, branch `draft/omarchy-realtime-events-20260816`: 0.10 release candidate; SDK-backed JSONL command, credential-isolated cursors, reconnect, recovery, and dedupe.
+- `omarchy-sendblue-plugin`, this repository: bar widget and pure-JavaScript model release candidate.
 
 ## Release boundary
 
-Nothing in this repository deploys or enables the backend, CLI, SDK, or plugin. Do not enable the widget against production until the matching backend and CLI changes have completed normal review, deployment, and end-to-end account-isolation testing.
+Nothing in this repository deploys or enables the backend, CLI, SDK, or plugin. Publish and install the widget only after the matching CLI 0.10 release completes normal review and npm publication.
 
 Exact offline replay would require a retained event log or transactional outbox spanning multiple domains. That is a separate platform decision; this plugin instead converges current durable state through bounded recovery APIs.
